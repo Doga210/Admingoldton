@@ -27,15 +27,38 @@ body{background:var(--bg);color:var(--txt);font-family:'Cairo',sans-serif;min-he
 
 /* ===== LOGIN ===== */
 #login-screen{position:fixed;inset:0;z-index:200;background:var(--bg);display:flex;align-items:center;justify-content:center;}
-.login-box{background:var(--glass);border:1px solid var(--brd-gold);border-radius:28px;padding:48px 40px;max-width:420px;width:90%;text-align:center;position:relative;overflow:hidden;}
+.login-box{background:var(--glass);border:1px solid var(--brd-gold);border-radius:28px;padding:48px 40px;max-width:440px;width:90%;text-align:center;position:relative;overflow:hidden;}
 .login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--gold),transparent);}
 .login-icon{font-size:54px;margin-bottom:16px;}
 .login-title{font-family:'Orbitron',monospace;font-size:20px;font-weight:900;color:var(--gold);margin-bottom:5px;}
 .login-sub{font-size:9px;color:var(--dim);letter-spacing:3px;text-transform:uppercase;margin-bottom:22px;}
 .login-warn{background:rgba(255,69,103,0.08);border:1px solid rgba(255,69,103,0.2);border-radius:12px;padding:12px;font-size:11px;color:#ff8fa0;margin-bottom:22px;line-height:1.6;}
-#lc-btn{display:flex;justify-content:center;}
-.login-note{font-size:10px;color:var(--dim);margin-top:14px;}
+
+/* Steps */
+#step-wallet{display:block;}
+#step-password{display:none;}
+
+/* Wallet connected info */
+.wallet-connected{background:rgba(0,212,160,0.08);border:1px solid rgba(0,212,160,0.2);border-radius:12px;padding:12px 14px;font-size:11px;color:var(--grn);margin-bottom:16px;text-align:right;}
+.wallet-addr-show{font-family:monospace;font-size:9px;color:var(--soft);word-break:break-all;margin-top:4px;}
+
+/* Password input */
+.pw-wrap{position:relative;margin-bottom:16px;}
+.pw-input{width:100%;background:rgba(0,0,0,0.4);border:1px solid var(--brd-gold);color:var(--txt);padding:13px 16px;border-radius:13px;font-size:14px;font-family:'Cairo',sans-serif;text-align:center;letter-spacing:3px;transition:all .3s;}
+.pw-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 3px rgba(245,200,66,0.08);}
+.pw-input.err{border-color:var(--red);box-shadow:0 0 0 3px rgba(255,69,103,0.08);animation:shake .3s;}
+@keyframes shake{0%,100%{transform:translateX(0);}25%{transform:translateX(-6px);}75%{transform:translateX(6px);}};
+.pw-toggle{position:absolute;left:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;font-size:16px;color:var(--dim);}
+
+.login-btn{width:100%;background:linear-gradient(135deg,var(--gold),var(--gold-dk));color:#000;border:none;padding:13px;border-radius:13px;font-size:14px;font-weight:900;cursor:pointer;font-family:'Cairo',sans-serif;transition:all .3s;margin-bottom:10px;}
+.login-btn:hover{transform:translateY(-1px);box-shadow:0 6px 24px rgba(245,200,66,0.25);}
+.login-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+
+#lc-btn{display:flex;justify-content:center;margin-bottom:14px;}
+.login-note{font-size:10px;color:var(--dim);margin-top:10px;}
 .denied-msg{display:none;background:rgba(255,69,103,0.1);border:1px solid rgba(255,69,103,0.3);border-radius:12px;padding:14px;font-size:12px;color:var(--red);margin-top:14px;font-weight:700;}
+.back-link{font-size:10px;color:var(--dim);cursor:pointer;margin-top:10px;display:inline-block;text-decoration:underline;}
+.back-link:hover{color:var(--soft);}
 
 /* ===== LAYOUT ===== */
 #admin-panel{display:none;position:relative;z-index:1;}
@@ -146,7 +169,7 @@ tr:last-child td{border-bottom:none;}
 .m-sub{font-size:11px;color:var(--soft);margin-bottom:22px;word-break:break-all;font-family:monospace;}
 .m-btns{display:flex;gap:10px;justify-content:center;}
 .m-confirm{background:linear-gradient(135deg,var(--gold),var(--gold-dk));color:#000;border:none;padding:11px 28px;border-radius:11px;font-weight:900;font-size:13px;cursor:pointer;font-family:'Cairo',sans-serif;}
-.m-confirm.red{background:linear-gradient(135deg,var(--red),#c0273e);}
+.m-confirm.red{background:linear-gradient(135deg,var(--red),#c0273e);color:#fff;}
 .m-confirm.grn{background:linear-gradient(135deg,var(--grn),#00a07a);color:#000;}
 .m-cancel{background:rgba(255,255,255,0.05);color:var(--soft);border:1px solid var(--brd);padding:11px 22px;border-radius:11px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Cairo',sans-serif;}
 
@@ -167,12 +190,35 @@ tr:last-child td{border-bottom:none;}
     <div class="login-icon">🛡️</div>
     <div class="login-title">ADMIN PANEL</div>
     <div class="login-sub">GOLD TON • Restricted Access</div>
-    <div class="login-warn">⚠️ هذه الصفحة مخصصة للمشرف فقط.<br>وصّل محفظة الأدمن المعتمدة للدخول.</div>
-    <div id="lc-btn"></div>
-    <div class="denied-msg" id="denied-msg">❌ هذه المحفظة غير مصرح لها بالدخول</div>
-    <div class="login-note">تأكد من استخدام محفظة الأدمن الصحيحة</div>
+
+    <!-- STEP 1: Connect Wallet -->
+    <div id="step-wallet">
+      <div class="login-warn">⚠️ هذه الصفحة مخصصة للمشرف فقط.<br>وصّل محفظة الأدمن المعتمدة للدخول.</div>
+      <div id="lc-btn"></div>
+      <div class="login-note">تأكد من استخدام محفظة الأدمن الصحيحة</div>
+      <div class="denied-msg" id="denied-msg">❌ هذه المحفظة غير مصرح لها بالدخول</div>
+    </div>
+
+    <!-- STEP 2: Password -->
+    <div id="step-password">
+      <div class="wallet-connected">
+        ✅ تم التعرف على محفظة الأدمن
+        <div class="wallet-addr-show" id="conn-addr-show"></div>
+      </div>
+      <div class="login-warn" style="margin-bottom:16px;">🔐 أدخل كلمة المرور للدخول النهائي</div>
+      <div class="pw-wrap">
+        <input class="pw-input" type="password" id="pw-input" placeholder="كلمة المرور" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="pw-toggle" onclick="togglePw()" id="pw-eye">👁️</button>
+      </div>
+      <button class="login-btn" onclick="doLogin()" id="login-btn">دخول ← </button>
+      <div class="denied-msg" id="denied-pw">❌ كلمة المرور غير صحيحة</div>
+      <div class="back-link" onclick="resetLogin()">← تغيير المحفظة</div>
+    </div>
   </div>
 </div>
+
+<!-- ====== TOAST ====== -->
+<div class="toast" id="toast"></div>
 
 <!-- ====== ADMIN PANEL ====== -->
 <div id="admin-panel">
@@ -227,8 +273,6 @@ tr:last-child td{border-bottom:none;}
         <div class="sc blue"><div class="sc-icon">🔗</div><div class="sc-val blue" id="ov-ea">0</div><div class="sc-lbl">أرباح موزَّعة</div></div>
         <div class="sc red"><div class="sc-icon">📤</div><div class="sc-val red" id="ov-wa">0</div><div class="sc-lbl">إجمالي TON مسحوب</div></div>
       </div>
-
-      <!-- PENDING WITHDRAWALS QUICK VIEW -->
       <div class="tbox">
         <div class="tbox-head">
           <div class="tbox-title">⚡ السحوبات المعلقة - تحتاج إجراء</div>
@@ -277,7 +321,6 @@ tr:last-child td{border-bottom:none;}
 
     <!-- ======= PAGE: WITHDRAWALS ======= -->
     <div class="page" id="page-withdrawals">
-      <!-- PENDING -->
       <div class="tbox">
         <div class="tbox-head">
           <div class="tbox-title">⏳ السحوبات المعلقة</div>
@@ -295,8 +338,6 @@ tr:last-child td{border-bottom:none;}
         </div>
         <div class="empty" id="wd-empty"><div class="empty-icon">✅</div>لا توجد سحوبات معلقة</div>
       </div>
-
-      <!-- DONE -->
       <div class="tbox">
         <div class="tbox-head">
           <div class="tbox-title">✅ السحوبات المنجزة</div>
@@ -328,4 +369,502 @@ tr:last-child td{border-bottom:none;}
             </tr></thead>
             <tbody id="tx-body"></tbody>
           </table>
-      
+        </div>
+        <div class="empty" id="tx-empty"><div class="empty-icon">⚡</div>لا توجد معاملات</div>
+      </div>
+    </div>
+
+    <!-- ======= PAGE: GOLD PURCHASES ======= -->
+    <div class="page" id="page-goldpurchases">
+      <div class="tbox">
+        <div class="tbox-head">
+          <div class="tbox-title">🪙 سجل مشتريات GOLD TON</div>
+          <div class="badge-count" id="gp-badge">0 عملية</div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>المستخدم</th><th>الكمية (GT)</th><th>المبلغ (TON)</th><th>التاريخ</th>
+            </tr></thead>
+            <tbody id="gp-body"></tbody>
+          </table>
+        </div>
+        <div class="empty" id="gp-empty"><div class="empty-icon">🪙</div>لا توجد مشتريات</div>
+      </div>
+    </div>
+
+  </main>
+</div>
+</div>
+
+<!-- MODAL -->
+<div class="modal" id="modal">
+  <div class="mbox">
+    <div class="m-icon" id="m-icon">⚠️</div>
+    <div class="m-title" id="m-title">تأكيد</div>
+    <div class="m-desc" id="m-desc"></div>
+    <div class="m-val" id="m-val"></div>
+    <div class="m-sub" id="m-sub"></div>
+    <div class="m-btns">
+      <button class="m-confirm" id="m-confirm" onclick="modalConfirm()">تأكيد</button>
+      <button class="m-cancel" onclick="closeModal()">إلغاء</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================
+// CONFIG — عدّل هذا القسم فقط
+// =============================================
+const ADMIN_WALLET = "UQBufh6lLHE5H1NDJXQwRIVCX-t4iKHyyoXD0Spm8N9navPx";
+const ADMIN_PASSWORD = "doGA21@#";
+
+// Firebase config — ضع إعداداتك هنا
+const FB_CONFIG = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT-default-rtdb.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "000000000000",
+  appId: "1:000000000000:web:abcdefabcdef"
+};
+// =============================================
+
+let db = null;
+let tonConnectUI = null;
+let connectedWallet = null;
+let walletVerified = false;
+let allUsers = [];
+let allWithdrawals = [];
+let allTransactions = [];
+let allGoldPurchases = [];
+let modalAction = null;
+
+// ---- INIT ----
+window.addEventListener('DOMContentLoaded', () => {
+  initTon();
+  tryInitFirebase();
+});
+
+function tryInitFirebase() {
+  try {
+    if (FB_CONFIG.apiKey && FB_CONFIG.apiKey !== "YOUR_API_KEY") {
+      firebase.initializeApp(FB_CONFIG);
+      db = firebase.database();
+    }
+  } catch(e) { console.warn("Firebase not configured:", e); }
+}
+
+function initTon() {
+  const manifestUrl = window.location.origin + '/tonconnect-manifest.json';
+  try {
+    tonConnectUI = new TON_CONNECT_UI.TonConnectUI({
+      manifestUrl,
+      buttonRootId: 'lc-btn'
+    });
+    tonConnectUI.onStatusChange(wallet => {
+      if (wallet) {
+        connectedWallet = wallet;
+        handleWalletConnect(wallet);
+      } else {
+        connectedWallet = null;
+        walletVerified = false;
+      }
+    });
+  } catch(e) {
+    // Fallback: show manual connect info
+    document.getElementById('lc-btn').innerHTML =
+      '<div style="font-size:11px;color:var(--dim);padding:10px;">⚠️ TonConnect غير متاح في هذا البيئة</div>';
+    console.warn("TonConnect init failed:", e);
+  }
+}
+
+function handleWalletConnect(wallet) {
+  const rawAddr = wallet.account?.address || "";
+  // TON addresses can come in different formats — normalize for comparison
+  const normalize = a => a.replace(/[^a-zA-Z0-9]/g,'').toLowerCase();
+  const incoming = normalize(rawAddr);
+  const expected = normalize(ADMIN_WALLET);
+
+  // Check if it matches
+  if (incoming === expected || rawAddr === ADMIN_WALLET) {
+    // Wallet OK → show password step
+    document.getElementById('denied-msg').style.display = 'none';
+    document.getElementById('step-wallet').style.display = 'none';
+    document.getElementById('step-password').style.display = 'block';
+    document.getElementById('conn-addr-show').textContent = rawAddr;
+    walletVerified = true;
+    setTimeout(() => document.getElementById('pw-input').focus(), 100);
+  } else {
+    // Wrong wallet
+    document.getElementById('denied-msg').style.display = 'block';
+    walletVerified = false;
+  }
+}
+
+function togglePw() {
+  const inp = document.getElementById('pw-input');
+  const eye = document.getElementById('pw-eye');
+  if (inp.type === 'password') { inp.type = 'text'; eye.textContent = '🙈'; }
+  else { inp.type = 'password'; eye.textContent = '👁️'; }
+}
+
+function doLogin() {
+  if (!walletVerified) { showToast('❌ وصّل المحفظة أولاً'); return; }
+  const pw = document.getElementById('pw-input').value;
+  const inp = document.getElementById('pw-input');
+  const denied = document.getElementById('denied-pw');
+  if (pw === ADMIN_PASSWORD) {
+    denied.style.display = 'none';
+    enterPanel();
+  } else {
+    inp.classList.add('err');
+    denied.style.display = 'block';
+    setTimeout(() => inp.classList.remove('err'), 400);
+    inp.value = '';
+    inp.focus();
+  }
+}
+
+function enterPanel() {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('admin-panel').style.display = 'block';
+  const addr = connectedWallet?.account?.address || ADMIN_WALLET;
+  document.getElementById('sb-addr').textContent = addr.slice(0,8) + '...' + addr.slice(-6);
+  loadAllData();
+}
+
+function resetLogin() {
+  walletVerified = false;
+  document.getElementById('step-wallet').style.display = 'block';
+  document.getElementById('step-password').style.display = 'none';
+  document.getElementById('denied-msg').style.display = 'none';
+  document.getElementById('denied-pw').style.display = 'none';
+  document.getElementById('pw-input').value = '';
+  if (tonConnectUI) { try { tonConnectUI.disconnect(); } catch(e){} }
+}
+
+function logout() {
+  resetLogin();
+  document.getElementById('admin-panel').style.display = 'none';
+  document.getElementById('login-screen').style.display = 'flex';
+}
+
+// ---- NAVIGATION ----
+function goPage(id, el, title, sub) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  el.classList.add('active');
+  document.getElementById('pg-title').textContent = title;
+  document.getElementById('pg-sub').textContent = sub;
+}
+
+// ---- DATA LOAD ----
+function loadAllData() {
+  if (!db) { loadDemoData(); return; }
+  loadUsers();
+  loadWithdrawals();
+  loadTransactions();
+  loadGoldPurchases();
+}
+
+function loadDemoData() {
+  // Demo data for testing without Firebase
+  allUsers = [
+    {id:'USR001',wallet:'EQAbc...xyz',refBy:'---',level:3,goldTon:1250,earnings:4.5,refEarnings:1.2,pendingWd:2.1,joined:'2024-01-15'},
+    {id:'USR002',wallet:'EQDef...abc',refBy:'USR001',level:2,goldTon:800,earnings:2.8,refEarnings:0.5,pendingWd:0,joined:'2024-01-20'}
+  ];
+  allWithdrawals = [
+    {uid:'USR001',wallet:'EQAbc...xyz',amount:2.1,date:'2024-02-01',status:'pending'},
+    {uid:'USR002',wallet:'EQDef...abc',amount:1.5,date:'2024-01-28',status:'done'}
+  ];
+  allTransactions = [
+    {uid:'USR001',level:3,amount:0.9,type:'upgrade',date:'2024-01-22'},
+    {uid:'USR002',level:2,amount:0.5,type:'upgrade',date:'2024-01-21'}
+  ];
+  allGoldPurchases = [
+    {uid:'USR001',qty:500,ton:1.0,date:'2024-01-25'},
+    {uid:'USR002',qty:200,ton:0.4,date:'2024-01-26'}
+  ];
+  renderAll();
+}
+
+function loadUsers() {
+  db.ref('users').on('value', snap => {
+    allUsers = [];
+    snap.forEach(child => {
+      const d = child.val();
+      allUsers.push({ id: child.key, ...d });
+    });
+    renderUsers();
+    updateOverview();
+  });
+}
+
+function loadWithdrawals() {
+  db.ref('withdrawals').on('value', snap => {
+    allWithdrawals = [];
+    snap.forEach(child => {
+      allWithdrawals.push({ _key: child.key, ...child.val() });
+    });
+    renderWithdrawals();
+    updateOverview();
+  });
+}
+
+function loadTransactions() {
+  db.ref('transactions').on('value', snap => {
+    allTransactions = [];
+    snap.forEach(child => {
+      allTransactions.push({ _key: child.key, ...child.val() });
+    });
+    renderTransactions();
+    updateOverview();
+  });
+}
+
+function loadGoldPurchases() {
+  db.ref('goldPurchases').on('value', snap => {
+    allGoldPurchases = [];
+    snap.forEach(child => {
+      allGoldPurchases.push({ _key: child.key, ...child.val() });
+    });
+    renderGoldPurchases();
+    updateOverview();
+  });
+}
+
+function refreshAll() {
+  if (!db) { loadDemoData(); showToast('✅ تم التحديث'); return; }
+  loadAllData();
+  showToast('✅ تم التحديث');
+}
+
+function renderAll() {
+  renderUsers();
+  renderWithdrawals();
+  renderTransactions();
+  renderGoldPurchases();
+  updateOverview();
+}
+
+// ---- OVERVIEW ----
+function updateOverview() {
+  const pending = allWithdrawals.filter(w => w.status === 'pending');
+  const totalGT = allUsers.reduce((a,u) => a + (parseFloat(u.goldTon)||0), 0);
+  const totalTON = allTransactions.reduce((a,t) => a + (parseFloat(t.amount)||0), 0);
+  const totalGS = allGoldPurchases.reduce((a,g) => a + (parseFloat(g.qty)||0), 0);
+  const totalEA = allUsers.reduce((a,u) => a + (parseFloat(u.earnings)||0) + (parseFloat(u.refEarnings)||0), 0);
+  const totalWA = allWithdrawals.filter(w=>w.status==='done').reduce((a,w)=>a+(parseFloat(w.amount)||0),0);
+
+  document.getElementById('ov-m').textContent = allUsers.length;
+  document.getElementById('ov-gt').textContent = totalGT.toFixed(0);
+  document.getElementById('ov-wd').textContent = pending.length;
+  document.getElementById('ov-tx').textContent = allTransactions.length;
+  document.getElementById('ov-tv').textContent = totalTON.toFixed(2);
+  document.getElementById('ov-gs').textContent = totalGS.toFixed(0);
+  document.getElementById('ov-ea').textContent = totalEA.toFixed(2);
+  document.getElementById('ov-wa').textContent = totalWA.toFixed(2);
+  document.getElementById('ov-wd-badge').textContent = pending.length + ' معلق';
+
+  // Quick pending table
+  const tbody = document.getElementById('ov-wd-body');
+  if (pending.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5" class="empty"><div class="empty-icon">✅</div>لا توجد سحوبات معلقة</td></tr>';
+  } else {
+    tbody.innerHTML = pending.map(w => `
+      <tr>
+        <td class="t-id">${w.uid||w._key||'—'}</td>
+        <td class="t-addr-full">${w.wallet||'—'}</td>
+        <td class="t-gold">${(parseFloat(w.amount)||0).toFixed(3)} TON</td>
+        <td class="t-date">${w.date||'—'}</td>
+        <td>
+          <div class="btn-grp">
+            <button class="abtn pay" onclick="confirmPay('${w._key}','${w.uid||''}','${(parseFloat(w.amount)||0).toFixed(3)}','${w.wallet||''}')">✅ دفع</button>
+            <button class="abtn clr" onclick="confirmClear('${w._key}','${w.uid||''}')">🗑️ تصفير</button>
+            <button class="abtn cp" onclick="copyAddr('${w.wallet||''}')">📋 نسخ</button>
+          </div>
+        </td>
+      </tr>
+    `).join('');
+  }
+}
+
+// ---- USERS ----
+function renderUsers(filter='') {
+  const list = filter ? allUsers.filter(u =>
+    (u.id||'').toLowerCase().includes(filter.toLowerCase()) ||
+    (u.wallet||'').toLowerCase().includes(filter.toLowerCase())
+  ) : allUsers;
+  document.getElementById('u-badge').textContent = allUsers.length + ' عضو';
+  const tbody = document.getElementById('u-body');
+  if (list.length === 0) { tbody.innerHTML=''; document.getElementById('u-empty').style.display='block'; return; }
+  document.getElementById('u-empty').style.display = 'none';
+  tbody.innerHTML = list.map(u => `
+    <tr>
+      <td class="t-id">${u.id||'—'}</td>
+      <td class="t-addr-full">${u.wallet||'—'}</td>
+      <td class="t-addr">${u.refBy||'—'}</td>
+      <td><span class="t-lvl">LVL ${u.level||1}</span></td>
+      <td class="t-gold">${(parseFloat(u.goldTon)||0).toFixed(2)} GT</td>
+      <td class="t-ton">${(parseFloat(u.earnings)||0).toFixed(3)}</td>
+      <td class="t-ton">${(parseFloat(u.refEarnings)||0).toFixed(3)}</td>
+      <td class="${(parseFloat(u.pendingWd)||0)>0?'t-gold':'t-up'}">${(parseFloat(u.pendingWd)||0).toFixed(3)}</td>
+      <td>
+        <div class="btn-grp">
+          <button class="abtn cp" onclick="copyAddr('${u.wallet||''}')">📋 نسخ</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+function filterUsers() {
+  renderUsers(document.getElementById('u-srch').value);
+}
+
+// ---- WITHDRAWALS ----
+function renderWithdrawals() {
+  const pending = allWithdrawals.filter(w => w.status==='pending');
+  const done = allWithdrawals.filter(w => w.status==='done');
+
+  document.getElementById('wd-pending-badge').textContent = pending.length + ' معلق';
+  document.getElementById('wd-done-badge').textContent = done.length + ' منجز';
+
+  const pb = document.getElementById('wd-pending-body');
+  document.getElementById('wd-empty').style.display = pending.length ? 'none' : 'block';
+  pb.innerHTML = pending.map(w=>`
+    <tr>
+      <td class="t-id">${w.uid||w._key||'—'}</td>
+      <td class="t-addr-full">${w.wallet||'—'}</td>
+      <td class="t-gold">${(parseFloat(w.amount)||0).toFixed(3)}</td>
+      <td class="t-date">${w.date||'—'}</td>
+      <td><span class="t-pending">معلق</span></td>
+      <td>
+        <div class="btn-grp">
+          <button class="abtn pay" onclick="confirmPay('${w._key}','${w.uid||''}','${(parseFloat(w.amount)||0).toFixed(3)}','${w.wallet||''}')">✅ دفع</button>
+          <button class="abtn clr" onclick="confirmClear('${w._key}','${w.uid||''}')">🗑️ تصفير</button>
+          <button class="abtn cp" onclick="copyAddr('${w.wallet||''}')">📋 نسخ</button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+
+  const db2 = document.getElementById('wd-done-body');
+  document.getElementById('wd-done-empty').style.display = done.length ? 'none' : 'block';
+  db2.innerHTML = done.map(w=>`
+    <tr>
+      <td class="t-id">${w.uid||w._key||'—'}</td>
+      <td class="t-addr-full">${w.wallet||'—'}</td>
+      <td class="t-ton">${(parseFloat(w.amount)||0).toFixed(3)}</td>
+      <td class="t-date">${w.date||'—'}</td>
+      <td><span class="t-done">✅ منجز</span></td>
+    </tr>
+  `).join('');
+}
+
+// ---- TRANSACTIONS ----
+function renderTransactions() {
+  const tbody = document.getElementById('tx-body');
+  document.getElementById('tx-badge').textContent = allTransactions.length + ' معاملة';
+  document.getElementById('tx-empty').style.display = allTransactions.length ? 'none' : 'block';
+  tbody.innerHTML = allTransactions.map(t=>`
+    <tr>
+      <td class="t-id">${t.uid||'—'}</td>
+      <td><span class="t-lvl">LVL ${t.level||1}</span></td>
+      <td class="t-gold">${(parseFloat(t.amount)||0).toFixed(3)} TON</td>
+      <td><span class="${t.type==='external'?'t-ext':'t-int'}">${t.type||'—'}</span></td>
+      <td class="t-date">${t.date||'—'}</td>
+    </tr>
+  `).join('');
+}
+
+// ---- GOLD PURCHASES ----
+function renderGoldPurchases() {
+  const tbody = document.getElementById('gp-body');
+  document.getElementById('gp-badge').textContent = allGoldPurchases.length + ' عملية';
+  document.getElementById('gp-empty').style.display = allGoldPurchases.length ? 'none' : 'block';
+  tbody.innerHTML = allGoldPurchases.map(g=>`
+    <tr>
+      <td class="t-id">${g.uid||'—'}</td>
+      <td class="t-gold">${(parseFloat(g.qty)||0).toFixed(2)} GT</td>
+      <td class="t-ton">${(parseFloat(g.ton)||0).toFixed(3)} TON</td>
+      <td class="t-date">${g.date||'—'}</td>
+    </tr>
+  `).join('');
+}
+
+// ---- MODAL / ACTIONS ----
+function confirmPay(key, uid, amount, wallet) {
+  modalAction = { type:'pay', key, uid, amount, wallet };
+  document.getElementById('m-icon').textContent = '💸';
+  document.getElementById('m-title').textContent = 'تأكيد الدفع';
+  document.getElementById('m-desc').textContent = `سيتم تحديد هذا السحب كـ "منجز". تأكد من إرسال المبلغ يدوياً.`;
+  document.getElementById('m-val').textContent = amount + ' TON';
+  document.getElementById('m-sub').textContent = wallet;
+  const btn = document.getElementById('m-confirm');
+  btn.className = 'm-confirm grn'; btn.textContent = '✅ تأكيد الدفع';
+  document.getElementById('modal').classList.add('open');
+}
+
+function confirmClear(key, uid) {
+  modalAction = { type:'clear', key, uid };
+  document.getElementById('m-icon').textContent = '🗑️';
+  document.getElementById('m-title').textContent = 'تأكيد التصفير';
+  document.getElementById('m-desc').textContent = 'سيتم حذف طلب السحب هذا نهائياً.';
+  document.getElementById('m-val').textContent = '';
+  document.getElementById('m-sub').textContent = 'UID: ' + uid;
+  const btn = document.getElementById('m-confirm');
+  btn.className = 'm-confirm red'; btn.textContent = '🗑️ تأكيد الحذف';
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('open'); modalAction = null; }
+
+function modalConfirm() {
+  if (!modalAction) { closeModal(); return; }
+  if (modalAction.type === 'pay') {
+    if (db) {
+      db.ref('withdrawals/' + modalAction.key).update({ status: 'done' });
+    } else {
+      // Demo mode
+      const w = allWithdrawals.find(x => x._key === modalAction.key);
+      if (w) w.status = 'done';
+      renderAll();
+    }
+    showToast('✅ تم تسجيل الدفع بنجاح');
+  } else if (modalAction.type === 'clear') {
+    if (db) {
+      db.ref('withdrawals/' + modalAction.key).remove();
+    } else {
+      allWithdrawals = allWithdrawals.filter(x => x._key !== modalAction.key);
+      renderAll();
+    }
+    showToast('🗑️ تم حذف السحب');
+  }
+  closeModal();
+}
+
+// ---- UTILS ----
+function copyAddr(addr) {
+  if (!addr) return;
+  navigator.clipboard.writeText(addr).then(() => showToast('📋 تم نسخ العنوان')).catch(() => showToast('❌ فشل النسخ'));
+}
+
+function saveStats() {
+  const t = new Date().toLocaleTimeString('ar');
+  document.getElementById('last-save').textContent = 'آخر حفظ: ' + t;
+  showToast('💾 تم الحفظ في ' + t);
+}
+
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+</script>
+</body>
+</html>
